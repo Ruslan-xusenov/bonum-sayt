@@ -1,0 +1,94 @@
+{% extends 'market/admin_base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<style>
+    /* Styles specific to this form, if not handled by admin_base.html */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-cancel {
+        padding: 12px 30px;
+        background: transparent;
+        border: 1px solid var(--dark-border);
+        color: var(--text-white);
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        border-color: var(--text-gray);
+    }
+
+    .btn-submit {
+        padding: 12px 30px;
+        background: var(--primary-yellow);
+        color: var(--dark-bg);
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: var(--hover-yellow);
+    }
+</style>
+
+<div class="admin-form-container">
+    <div class="form-header">
+        <h1 class="form-title">Yangi toifa qo'shish</h1>
+        <p class="form-subtitle">Toifa ma'lumotlarini kiriting</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Toifa nomi *</label>
+                <input type="text" name="name" class="form-input" placeholder="Masalan: Elektronika" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Asosiy toifa (Parent)</label>
+                <select name="parent" class="form-input">
+                    <option value="">Asosiy toifa (Hech narsa)</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label class="form-label">Ikona (Ixtiyoriy)</label>
+                <input type="file" name="icon" class="form-input" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'market:admin_dashboard' %}" class="btn-cancel">Bekor qilish</a>
+            <button type="submit" class="btn-submit">Saqlash</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

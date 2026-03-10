@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="product-detail"
+    style="margin-top: 20px; background: white; padding: 30px; border-radius: 20px; box-shadow: var(--shadow-card);">
+    <div class="product-detail-image" style="flex: 1; min-width: 300px;">
+        <img src="{{ product.get_image }}" alt="{{ product.name }}" style="width: 100%; border-radius: 15px;">
+    </div>
+
+    <div class="product-detail-info" style="flex: 1.2; padding: 0 10px;">
+        <nav style="font-size: 14px; color: #8B8E99; margin-bottom: 20px;">
+            <a href="{% url 'market:home' %}" style="color: inherit; text-decoration: none;">Bosh sahifa</a> /
+            <a href="{% url 'market:home' %}?category={{ product.category.id }}"
+                style="color: inherit; text-decoration: none;">{{ product.category.name }}</a>
+        </nav>
+
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 15px; color: #1F2026;">{{ product.name }}</h1>
+
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; font-size: 14px;">
+            <span style="display: flex; align-items: center; gap: 5px; color: #1F2026;">
+                <i class="fas fa-star" style="color: #FFBE1F;"></i> {{ product.rating|default:"4.5" }}
+            </span>
+            <span style="color: #8B8E99;">{{ product.reviews_count|default:"0" }} sharh</span>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #E2EAF1; margin-bottom: 25px;">
+
+        <div style="margin-bottom: 30px;">
+            <p style="font-size: 14px; color: #8B8E99; margin-bottom: 8px;">Narx:</p>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-size: 28px; font-weight: 800; color: #1F2026;">{{ product.price }} so'm</span>
+                {% if product.old_price %}
+                <span style="font-size: 18px; color: #8B8E99; text-decoration: line-through;">{{ product.old_price }}
+                    so'm</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <button onclick="addToCart('{{ product.id }}')" class="btn-yellow-main"
+                style="display: block; width: 100%; padding: 18px; font-size: 16px; font-weight: 700; background: var(--primary-yellow); color: #000; border: none; border-radius: 12px; cursor: pointer; transition: 0.3s;">
+                Savatga qo'shish
+            </button>
+        </div>
+
+        <div
+            style="background: #FFFBEB; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #FEF3C7;">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <i class="fas fa-truck" style="color: var(--primary-yellow); font-size: 20px;"></i>
+                <div>
+                    <p style="font-weight: 700; font-size: 14px; color: #1F2026;">Yetkazib berish: 1 kun ichida</p>
+                    <p style="font-size: 12px; color: #8B8E99;">NextMarket topshirish punktlariga bepul</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #1F2026;">Mahsulot tavsifi</h3>
+            <div style="line-height: 1.6; color: #4D4F59; font-size: 15px;">
+                {{ product.description|linebreaks }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

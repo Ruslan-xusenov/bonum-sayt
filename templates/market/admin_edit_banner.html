@@ -1,0 +1,66 @@
+{% extends 'market/admin_base.html' %}
+{% load static %}
+
+{% block admin_content %}
+
+<div class="admin-form-container">
+    <div class="form-header">
+        <h1 class="form-title">Bannerni tahrirlash</h1>
+        <p class="form-subtitle">Kerakli maydonlarni o'zgartiring</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Sarloha (Title) *</label>
+                <input type="text" name="title" class="form-input" value="{{ banner.title }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kichik sarloha (Subtitle)</label>
+                <input type="text" name="subtitle" class="form-input" value="{{ banner.subtitle }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Havola (Link)</label>
+                <input type="text" name="link" class="form-input" value="{{ banner.link }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tartib raqami</label>
+                <input type="number" name="order" class="form-input" value="{{ banner.order }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Holat</label>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" name="is_active" id="is_active" {% if banner.is_active %}checked{% endif %}
+                        style="width: 20px; height: 20px;">
+                    <label for="is_active" style="color: var(--text-white); margin: 0;">Faol</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label class="form-label">Yangi rasm</label>
+                {% if banner.image %}
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="current-image">
+                {% endif %}
+                <input type="file" name="image" class="form-input" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'market:admin_dashboard' %}" class="btn-cancel">Bekor qilish</a>
+            <button type="submit" class="btn-submit">Saqlash</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

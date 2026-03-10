@@ -1,0 +1,315 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextMarket | Admin Kirish</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #F5A623;
+            --hover-red: #E09510;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --input-bg: #f0f4f8;
+            --text-dark: #1a1a2e;
+            --text-gray: #7a8599;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            min-height: 520px;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            margin: 20px;
+        }
+
+        /* Left brand panel */
+        .brand-panel {
+            background: var(--primary-red);
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            color: #fff;
+            font-size: 36px;
+        }
+
+        .brand-name {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .brand-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 35px;
+        }
+
+        .brand-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .brand-dots span:first-child {
+            background: #fff;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Right form panel */
+        .form-panel {
+            background: var(--card-bg);
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 55px 50px;
+            position: relative;
+        }
+
+        .form-panel h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-panel p.subtitle {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 35px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bcc5d3;
+            font-size: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px 20px 15px 46px;
+            background: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-red);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.08);
+        }
+
+        input::placeholder {
+            color: #b0bac8;
+            font-weight: 500;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-login:hover {
+            background: var(--hover-red);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 166, 35, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            color: var(--primary-red);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .errornote {
+            background: rgba(245, 166, 35, 0.08);
+            color: var(--primary-red);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(245, 166, 35, 0.2);
+        }
+
+        .home-link {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: #bcc5d3;
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .home-link:hover {
+            color: var(--primary-red);
+        }
+
+        @media (max-width: 640px) {
+            .brand-panel {
+                display: none;
+            }
+
+            .form-panel {
+                width: 100%;
+                padding: 40px 30px;
+            }
+
+            .login-wrapper {
+                max-width: 420px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <!-- Left brand panel -->
+        <div class="brand-panel">
+            <div class="brand-icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="brand-name">NextMarket</div>
+            <div class="brand-subtitle">Online do'kon boshqaruv tizimi.<br>Admin paneliga xush kelibsiz.</div>
+            <div class="brand-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="form-panel">
+            <a href="/" class="home-link"><i class="fas fa-times"></i></a>
+
+            <h2>Xush kelibsiz!</h2>
+            <p class="subtitle">Davom etish uchun login va parolni kiriting</p>
+
+            {% if form.errors and not form.non_field_errors %}
+            <p class="errornote">
+                {% if form.errors.items|length == 1 %}{% trans "Iltimos, pastdagi xatolikni tuzating." %}{% else %}{%
+                trans "Iltimos, pastdagi xatoliklarni tuzating." %}{% endif %}
+            </p>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+            <p class="errornote">{{ error }}</p>
+            {% endfor %}
+            {% endif %}
+
+            <form action="{{ app_path }}" method="post" id="login-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" placeholder="Login" required id="id_username"
+                            autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" placeholder="Parol" required id="id_password"
+                            autocomplete="current-password">
+                    </div>
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Kirish
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

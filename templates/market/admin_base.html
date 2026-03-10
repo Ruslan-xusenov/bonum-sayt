@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --admin-bg: #f4f6f9;
+        --admin-sidebar: #ffffff;
+        --admin-card: #ffffff;
+        --admin-border: #e8edf2;
+        --text-dim: #888;
+        --primary-yellow: #F5A623;
+        --hover-yellow: #E09510;
+    }
+
+    body {
+        background-color: var(--admin-bg) !important;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    /* Layout Wrapper */
+    .admin-layout {
+        display: flex;
+        min-height: 100vh;
+        color: #1a1a2e;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Sidebar Styling */
+    .admin-sidebar {
+        width: 260px;
+        background: var(--admin-sidebar);
+        border-right: 1px solid var(--admin-border);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001;
+        transition: transform 0.3s;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.06);
+    }
+
+    .sidebar-header {
+        padding: 25px 25px;
+        border-bottom: 1px solid var(--admin-border);
+        background: var(--primary-yellow);
+    }
+
+    .nm-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 20px;
+    }
+
+    .nm-circle {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .sidebar-menu {
+        padding: 20px 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        color: #555;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .menu-item i {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+        background: rgba(245, 166, 35, 0.08);
+        color: var(--primary-yellow);
+    }
+
+    .menu-item.active i {
+        color: var(--primary-yellow);
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid var(--admin-border);
+        background: #fff;
+    }
+
+    /* Main Content Area */
+    .admin-main {
+        flex: 1;
+        margin-left: 260px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .admin-top-bar {
+        height: 70px;
+        background: #ffffff;
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        color: #1a1a2e;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .page-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    .top-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    .p-circle {
+        width: 32px;
+        height: 32px;
+        background: var(--primary-yellow);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 0 10px rgba(230, 48, 48, 0.25);
+    }
+
+    .logout-btn {
+        color: #666;
+        text-decoration: none;
+        font-size: 13px;
+        transition: 0.2s;
+    }
+
+    .logout-btn:hover {
+        color: #ef4444;
+    }
+
+    .admin-content-inner {
+        padding: 30px;
+    }
+
+    /* Hide default theme elements */
+    header,
+    footer {
+        display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .admin-main {
+            margin-left: 0;
+        }
+
+        .admin-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <div class="admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'market:home' %}" class="nm-logo">
+                <div class="nm-circle"><i class="fas fa-store"></i></div>
+                <span>NextMarket</span>
+            </a>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="{% url 'market:admin_dashboard' %}" class="menu-item active" data-tab="dashboard">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <div class="menu-item" data-tab="buyurtmalar">
+                <i class="fas fa-shopping-bag"></i> Buyurtmalar
+            </div>
+            <div class="menu-item" data-tab="tasdiqlanganlar">
+                <i class="fas fa-check-circle"></i> Tasdiqlanganlar
+            </div>
+            <div class="menu-item" data-tab="kuryer">
+                <i class="fas fa-motorcycle"></i> Kuryer
+            </div>
+            <div class="menu-item" data-tab="tovar">
+                <i class="fas fa-box-open"></i> Mahsulotlar
+            </div>
+            <div class="menu-item" data-tab="toifalar">
+                <i class="fas fa-list-ul"></i> Toifalar
+            </div>
+            <div class="menu-item" data-tab="bannerlar">
+                <i class="fas fa-image"></i> Bannerlar
+            </div>
+            <div class="menu-item" data-tab="note">
+                <i class="far fa-sticky-note"></i> Eslatmalar
+            </div>
+            <div class="menu-item" data-tab="mijozlar">
+                <i class="fas fa-users"></i> Mijozlar
+            </div>
+            <div class="menu-item" data-tab="qoshish">
+                <i class="fas fa-plus-circle"></i> Yangi mahsulot
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'market:home' %}" class="menu-item">
+                <i class="fas fa-external-link-alt"></i> Saytga o'tish
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <div class="admin-top-bar">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="menu-toggle"
+                    style="background:none; border:none; color:#555; font-size:20px; display:none; cursor:pointer;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title">Admin Panel</div>
+            </div>
+
+            <div class="top-bar-right">
+                <div class="user-info">
+                    <div class="p-circle">{{ user.username.0|upper }}</div>
+                    <span>{{ user.username }}</span>
+                </div>
+                <a href="{% url 'account_logout' %}" class="logout-btn">Chiqish</a>
+            </div>
+        </div>
+
+        <div class="admin-content-inner">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    if (window.innerWidth <= 992) {
+        menuToggle.style.display = 'block';
+    }
+
+    menuToggle?.addEventListener('click', () => {
+        sidebar.classList.toggle('mobile-open');
+    });
+
+    // Integrated Tab Switching (handled in dashboard or here if shared)
+    document.querySelectorAll('.menu-item[data-tab]').forEach(item => {
+        item.addEventListener('click', function () {
+            const tabId = this.getAttribute('data-tab');
+
+            // UI updates
+            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+            this.classList.add('active');
+
+            // Try to trigger switchTab if defined in child template
+            if (typeof switchTab === 'function') {
+                switchTab(tabId);
+            } else {
+                // If on different page, redirect would be here, but we use one dash for now
+                localStorage.setItem('activeAdminTab', tabId);
+                window.location.href = "{% url 'market:admin_dashboard' %}";
+            }
+        });
+    });
+
+    // On page load, check for stored tab
+    document.addEventListener('DOMContentLoaded', function () {
+        const storedTab = localStorage.getItem('activeAdminTab');
+        if (storedTab && typeof switchTab === 'function') {
+            switchTab(storedTab);
+            document.querySelectorAll('.menu-item').forEach(mi => {
+                if (mi.getAttribute('data-tab') === storedTab) mi.classList.add('active');
+                else mi.classList.remove('active');
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+{% load account %}
+{% load socialaccount %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block account_content %}
+<div class="text-center" style="text-align: center;">
+    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 15px; color: var(--text-white);">{% trans "Kirish" %}
+    </h2>
+    <p style="color: var(--text-gray); margin-bottom: 30px;">Davom etish uchun Google orqali kiring</p>
+
+    {% get_providers as socialaccount_providers %}
+
+    {% if socialaccount_providers %}
+    <div class="socialaccount_ballot">
+        <ul class="socialaccount_providers" style="list-style: none; padding: 0;">
+            {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+        </ul>
+    </div>
+    {% include "socialaccount/snippets/login_extra.html" %}
+    {% endif %}
+</div>
+
+<style>
+    .socialaccount_providers li a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 14px;
+        background: white;
+        color: #333;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .socialaccount_providers li a:hover {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

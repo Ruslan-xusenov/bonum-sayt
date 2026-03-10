@@ -1,0 +1,93 @@
+{% extends 'market/admin_base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<style>
+    .form-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-cancel {
+        padding: 12px 30px;
+        background: transparent;
+        border: 1px solid var(--dark-border);
+        color: var(--text-white);
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        border-color: var(--text-gray);
+    }
+
+    .btn-submit {
+        padding: 12px 30px;
+        background: var(--primary-yellow);
+        color: var(--dark-bg);
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: var(--hover-yellow);
+    }
+</style>
+
+<div class="admin-form-container">
+    <div class="form-header">
+        <h1 class="form-title">Yangi banner qo'shish</h1>
+        <p class="form-subtitle">Banner ma'lumotlarini kiriting</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Sarloha (Title) *</label>
+                <input type="text" name="title" class="form-input" placeholder="Banner sarlohasi" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kichik sarloha (Subtitle)</label>
+                <input type="text" name="subtitle" class="form-input" placeholder="Banner tagidagi matn">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Havola (Link)</label>
+                <input type="text" name="link" class="form-input" placeholder="#" value="#">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tartib raqami</label>
+                <input type="number" name="order" class="form-input" placeholder="0" value="0">
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label class="form-label">Banner rasmi *</label>
+                <input type="file" name="image" class="form-input" accept="image/*" required>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'market:admin_dashboard' %}" class="btn-cancel">Bekor qilish</a>
+            <button type="submit" class="btn-submit">Saqlash</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

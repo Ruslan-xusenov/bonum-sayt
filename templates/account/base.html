@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #030303 !important;
+    }
+
+    .account-container {
+        max-width: 500px;
+        margin: 100px auto;
+        padding: 40px;
+        background: #0f0f0f;
+        border: 1px solid #1a1a1a;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        color: white;
+    }
+
+    header,
+    footer {
+        display: none !important;
+    }
+
+    .btn-google {
+        background: white;
+        color: black !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        font-weight: 700 !important;
+    }
+</style>
+
+<div class="account-container">
+    {% block account_content %}{% endblock %}
+</div>
+{% endblock %}

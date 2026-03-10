@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-layout">
+    <!-- Categories above Banner -->
+    <section class="top-categories">
+        <h3 onclick="toggleCategories()"
+            style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+            Barcha turkumlar
+            <i id="cat-toggle-icon" class="fas fa-chevron-up"></i>
+        </h3>
+        <div id="category-list" class="category-list-vertical">
+            <!-- All Category (Manual) -->
+            <a href="{% url 'market:home' %}"
+                class="category-item-v {% if not request.GET.category %}active{% endif %}">
+                <i class="fas fa-th" style="color: var(--primary-yellow);"></i>
+                <span>Barchasi</span>
+            </a>
+
+            {% for category in categories %}
+            {% if category.name != 'Barchasi' %}
+            <a href="{% url 'market:home' %}?category={{ category.id }}"
+                class="category-item-v {% if request.GET.category == category.id|slugify %}active{% endif %}">
+                {% if category.icon %}
+                <img src="{{ category.icon.url }}" alt="">
+                {% else %}
+                <i class="fas fa-th-large" style="color: var(--primary-yellow);"></i>
+                {% endif %}
+                <span>{{ category.name }}</span>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Big Search Section -->
+    <section class="home-search-section">
+        <div class="search-bar" style="max-width: 100%; width: 100%; margin: 10px 0 20px 0;">
+            <form action="{% url 'market:home' %}" method="get" style="height: 60px;">
+                <input type="text" name="q" placeholder="Mahsulotlar va turkumlar bo'ylab qidirish"
+                    value="{{ query|default:'' }}"
+                    style="border-radius: 16px 0 0 16px; font-size: 17px; padding: 0 30px; background: #f8f9fa; border: 2px solid #eee;">
+                <button type="submit" class="search-btn"
+                    style="border-radius: 0 16px 16px 0; font-size: 16px; padding: 0 40px;">Qidiruv</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Banner Section -->
+    <section class="hero-section">
+        <!-- Banner Slider -->
+        <div class="slider-container">
+            <div class="slider" id="mainSlider">
+                {% if banners %}
+                {% for banner in banners %}
+                <div class="slide">
+                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}">
+                    <div class="slide-content">
+                        <h2 class="slide-title">{{ banner.title }}</h2>
+                        <p class="slide-text">{{ banner.subtitle }}</p>
+                        <a href="{% url 'market:home' %}" class="search-btn">Batafsil</a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="slide" style="width: 100%;">
+                    <img src="{% static 'images/banner1.png' %}" alt="Elektronika">
+                    <div class="slide-content">
+                        <h2 class="slide-title">Hush kelibsiz!</h2>
+                        <p class="slide-text">Siz uchun eng yaxshi mahsulotlar bizda.</p>
+                        <a href="#" class="search-btn">Boshlash</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% if banners and banners.count > 1 %}
+            <div class="slider-dots" id="sliderDots">
+                {% for banner in banners %}
+                <div class="dot {% if forloop.first %}active{% endif %}"></div>
+                {% endfor %}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="slider-btn prev" id="prevBtn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="slider-btn next" id="nextBtn">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            {% endif %}
+        </div>
+
+        <h2 class="section-title">Mashhur mahsulotlar</h2>
+
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card" onclick="addToCart('{{ product.id }}')">
+                {% if product.is_new %}
+                <span class="badge badge-new">Yangi</span>
+                {% endif %}
+
+                <div class="wishlist-btn {% if product.id in favorite_ids %}active{% endif %}"
+                    onclick="event.stopPropagation(); toggleFavorite(this, '{{ product.id }}')">
+                    <i class="fa{% if product.id in favorite_ids %}s{% else %}r{% endif %} fa-heart"></i>
+                </div>
+
+                <a href="{% url 'market:product_detail' product.pk %}" onclick="event.stopPropagation()">
+                    <img src="{{ product.get_image }}" alt="{{ product.name }}" class="product-image">
+                </a>
+
+                <div class="product-info">
+                    <a href="{% url 'market:product_detail' product.pk %}" class="product-name"
+                        onclick="event.stopPropagation()">
+                        {{ product.name }}
+                    </a>
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i> {{ product.rating }} ({{ product.reviews_count }} sharh)
+                    </div>
+                    <div class="product-price-row">
+                        {% if product.old_price %}
+                        <span class="old-price">{{ product.old_price }} so'm</span>
+                        {% endif %}
+                        <span class="current-price">{{ product.price }} so'm</span>
+                    </div>
+                    <a href="javascript:void(0)" onclick="event.stopPropagation(); addToCart('{{ product.id }}')"
+                        class="add-to-cart-btn">
+                        <i class="fas fa-cart-plus"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p>Hozircha mahsulotlar yo'q.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<div id="slider-data" data-count="{% if banners %}{{ banners.count }}{% else %}1{% endif %}" style="display: none;">
+</div>
+
+<script>
+    // Slider JS
+    const slider = document.getElementById('mainSlider');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const sliderData = document.getElementById('slider-data');
+    let currentSlide = 0;
+
+    if (slider && sliderData) {
+        const totalSlides = parseInt(sliderData.dataset.count) || 1;
+
+        // Initial Setup
+        if (totalSlides > 1) {
+            slider.style.width = `${totalSlides * 100}%`;
+            const slides = slider.querySelectorAll('.slide');
+            slides.forEach(slide => {
+                slide.style.width = `${100 / totalSlides}%`;
+            });
+        }
+
+        function goToSlide(n) {
+            if (totalSlides > 1) {
+                currentSlide = (n + totalSlides) % totalSlides;
+                slider.style.transform = `translateX(-${currentSlide * (100 / totalSlides)}%)`;
+
+                // Update dots
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+        }
+
+        let slideInterval;
+        function startAutoSlide() {
+            if (totalSlides > 1) {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(() => goToSlide(currentSlide + 1), 5000);
+            }
+        }
+
+        function handleInteraction(n) {
+            goToSlide(n);
+            startAutoSlide();
+        }
+
+        if (totalSlides > 1) {
+            startAutoSlide();
+
+            // Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleInteraction(index);
+                });
+            });
+
+            // Button navigation
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleInteraction(currentSlide - 1);
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleInteraction(currentSlide + 1);
+                });
+            }
+        }
+    }
+    // Toggle Categories
+    function toggleCategories() {
+        const list = document.getElementById('category-list');
+        const icon = document.getElementById('cat-toggle-icon');
+
+        if (list.style.display === 'none') {
+            list.style.display = 'grid';
+            icon.className = 'fas fa-chevron-up';
+        } else {
+            list.style.display = 'none';
+            icon.className = 'fas fa-chevron-down';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'market/admin_base.html' %}
+{% load static %}
+
+{% block admin_content %}
+
+<div class="admin-form-container">
+    <div class="form-header">
+        <h1 class="form-title">Yangi mahsulot qo'shish</h1>
+        <p class="form-subtitle">Barcha maydonlarni to'ldiring</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Mahsulot nomi *</label>
+                <input type="text" name="name" class="form-input" placeholder="Mahsulot nomi" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kategoriya *</label>
+                <select name="category" class="form-input" required>
+                    <option value="">Kategoriyani tanlang</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row full">
+            <div class="form-group">
+                <label class="form-label">Tavsif *</label>
+                <textarea name="description" class="form-input" rows="4" placeholder="Mahsulot haqida ma'lumot"
+                    required></textarea>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Narxi *</label>
+                <input type="number" name="price" class="form-input" placeholder="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Eski narxi</label>
+                <input type="number" name="old_price" class="form-input" placeholder="0" step="0.01">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Ombordagi soni *</label>
+                <input type="number" name="stock" class="form-input" placeholder="0" value="0" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Brend</label>
+                <input type="text" name="brand" class="form-input" placeholder="Brend nomi">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Mahsulot rasmi (Fayl)</label>
+                <input type="file" name="image" class="form-input" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mahsulot rasmi (URL orqali)</label>
+                <input type="url" name="image_url" class="form-input" placeholder="https://example.com/image.jpg">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'market:admin_dashboard' %}" class="btn-cancel">Bekor qilish</a>
+            <button type="submit" class="btn-submit">Saqlash</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

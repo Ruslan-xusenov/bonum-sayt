@@ -1,0 +1,330 @@
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 15, 20, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Modal Container */
+.modal-container {
+    background: #ffffff;
+    border-radius: 32px;
+    padding: 50px 40px;
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-overlay.active .modal-container {
+    transform: scale(1) translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    background: #f1f5f9;
+    border: none;
+    color: #64748b;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-close:hover {
+    background: var(--primary-yellow);
+    color: #000;
+    transform: rotate(90deg);
+}
+
+/* Modal Header */
+.modal-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.modal-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary-yellow) 0%, #ffdb4d 100%);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 10px 25px rgba(255, 190, 31, 0.4);
+    transform: rotate(-5deg);
+}
+
+.modal-icon i {
+    color: #000;
+    font-size: 32px;
+    transform: rotate(5deg);
+}
+
+.modal-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 8px;
+    letter-spacing: -0.8px;
+}
+
+.modal-subtitle {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* Premium Google Button */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 16px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    border-color: var(--primary-yellow);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-google:active {
+    transform: translateY(-1px);
+}
+
+.btn-google img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -450px;
+    width: 450px;
+    height: 100%;
+    background: var(--bg-card);
+    z-index: 2001;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    border-left: 1px solid var(--border-color);
+}
+
+.sidebar.active {
+    right: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.sidebar-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.sidebar-close:hover {
+    color: var(--text-main);
+}
+
+.sidebar-content {
+    padding: 25px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 215, 0, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    border: 2px dashed var(--border-color);
+}
+
+.empty-icon i {
+    font-size: 50px;
+    color: var(--text-muted);
+}
+
+.empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 10px;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.btn-secondary {
+    padding: 12px 30px;
+    background: var(--primary-yellow);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--hover-yellow);
+}
+
+/* Admin Dashboard */
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
+    padding: 0 25px;
+}
+
+.admin-tab {
+    padding: 15px 20px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.admin-tab.active {
+    color: var(--primary-yellow);
+    border-bottom-color: var(--primary-yellow);
+}
+
+.admin-tab:hover {
+    color: var(--text-main);
+}
+
+.admin-content {
+    padding: 25px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table th {
+    text-align: left;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.product-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.add-product-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--primary-yellow);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+/* Response for Modals and Sidebars */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        right: -100%;
+    }
+
+    .modal-container {
+        padding: 30px 15px;
+        width: 95%;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .empty-icon i {
+        font-size: 32px;
+    }
+}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-layout" style="margin-top: 100px; margin-bottom: 150px; text-align: center; padding: 0 15px;">
+    <div
+        style="background: var(--dark-card); border: 1px solid var(--dark-border); padding: 40px; border-radius: 32px; max-width: 600px; margin: 0 auto;">
+        <div
+            style="width: 100px; height: 100px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 45px; margin: 0 auto 30px auto;">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 style="font-size: 28px; font-weight: 800; color: white; margin-bottom: 20px;">Buyurtma qabul qilindi!</h1>
+        <p style="font-size: 16px; color: var(--text-gray); margin-bottom: 40px; line-height: 1.6;">
+            Buyurtmangiz <strong>#{{ order.id }}</strong> muvaffaqiyatli saqlandi. Tez orada operatorlarimiz siz bilan
+            bog'lanishadi.
+        </p>
+
+        <div
+            style="background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 16px; margin-bottom: 40px; text-align: left; border: 1px solid var(--dark-border);">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text-gray); font-size: 14px;">
+                <span>Buyurtma raqami:</span>
+                <span style="color: white; font-weight: 600;">#{{ order.id }}</span>
+            </div>
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text-gray); font-size: 14px;">
+                <span>To'lov miqdori:</span>
+                <span style="color: var(--primary-yellow); font-weight: 700;">{{ order.total_amount|floatformat:0 }}
+                    so'm</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--text-gray); font-size: 14px;">
+                <span>Holati:</span>
+                <span style="color: #22c55e; font-weight: 600;">{{ order.get_status_display }}</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'market:home' %}" class="btn-white"
+                style="padding: 15px 30px; border-radius: 12px; text-decoration: none; min-width: 200px;">Asosiy
+                sahifaga qaytish</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

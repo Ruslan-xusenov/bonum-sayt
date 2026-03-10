@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextMarket - Online Do'kon</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modals.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+    <header>
+        <div class="container">
+            <div class="nav-top">
+                <a href="{% url 'market:home' %}" class="logo">
+                    <i class="fas fa-store"></i> NextMarket
+                </a>
+                {% if request.resolver_match.url_name != 'home' %}
+                <div class="search-bar">
+                    <form action="{% url 'market:home' %}" method="get">
+                        <input type="text" name="q" placeholder="Taomnomadan qidirish" value="{{ query|default:'' }}">
+                        <button type="submit" class="search-btn">Qidiruv</button>
+                    </form>
+                </div>
+                {% else %}
+                <div style="flex: 1;"></div>
+                {% endif %}
+                <div class="nav-actions">
+                    {% if user.is_authenticated %}
+                    <div class="nav-item" onclick="openProfileSidebar()">
+                        <i class="far fa-user"></i>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    {% else %}
+                    <div class="nav-item" onclick="openLoginModal()">
+                        <i class="far fa-user"></i>
+                        <span>Kirish</span>
+                    </div>
+                    {% endif %}
+                    {# Removed admin link from header #}
+                    {# <a href="{% url 'market:admin_dashboard' %}" class="nav-item"> #}
+                        {# <i class="fas fa-user-shield"></i> #}
+                        {# <span>Admin</span> #}
+                        {# </a> #}
+                    <div class="nav-item" onclick="openFavoritesSidebar()">
+                        <i class="far fa-heart"></i>
+                        <span>Saralangan</span>
+                    </div>
+                    <div class="nav-item" onclick="openCartSidebar()">
+                        <div style="position: relative;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" style="display: none;">0</span>
+                        </div>
+                        <span>Savat</span>
+                    </div>
+                    <div class="nav-item" onclick="openSupportModal()">
+                        <i class="fas fa-headset"></i>
+                        <span>Yordam</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="profileSidebar" class="sidebar">
+        <div class="sidebar-header" style="background: var(--primary-yellow); color: #fff; border: none;">
+            <div style="display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 18px; color: #fff;">
+                <i class="fas fa-user-circle"></i> Profil
+            </div>
+            <button class="sidebar-close" onclick="closeProfileSidebar()" style="color: #fff;">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <!-- User Info Section -->
+            <div class="sidebar-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="color: var(--text-main); font-weight: 700; font-size: 14px;">Ma'lumotlar</span>
+                    <button id="edit-profile-btn" onclick="toggleProfileEdit()"
+                        style="background: #f0f0f0; border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">
+                        <i class="fas fa-edit"></i> Tahrirlash
+                    </button>
+                    <button id="save-profile-btn" onclick="saveProfileChanges()"
+                        style="display: none; background: var(--primary-yellow); border: none; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                        <i class="fas fa-save"></i> Saqlash
+                    </button>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label"><i class="fas fa-user"></i> Ism</div>
+                    <div class="info-value" id="prof-name">Yuklanmoqda...</div>
+                    <input type="text" id="edit-name" class="edit-input" style="display: none;">
+                </div>
+                <div class="info-card">
+                    <div class="info-label"><i class="fas fa-phone"></i> Telefon</div>
+                    <div class="info-value" id="prof-phone">+998 ...</div>
+                    <input type="text" id="edit-phone" class="edit-input" style="display: none;">
+                </div>
+                <div class="info-card">
+                    <div class="info-label"><i class="fas fa-map-marker-alt"></i> Manzil</div>
+                    <div class="info-value" id="prof-address">...</div>
+                    <input type="text" id="edit-address" class="edit-input" style="display: none;">
+                </div>
+            </div>
+
+            <!-- Orders History Section -->
+            <div class="sidebar-section" style="margin-top: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="color: var(--text-main); font-weight: 700; font-size: 14px;">Buyurtmalar tarixi</span>
+                    <span class="order-badge" id="order-count">0 ta</span>
+                </div>
+
+                <div id="profile-orders-list">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-footer" style="padding: 15px 20px; border-top: 1px solid var(--border-color);">
+            <a href="{% url 'account_logout' %}"
+                style="display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--primary-yellow); color: #fff; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; transition: 0.3s; box-shadow: 0 4px 15px rgba(230, 48, 48, 0.25);">
+                <i class="fas fa-sign-out-alt"></i> Chiqish
+            </a>
+        </div>
+    </div>
+
+    <main class="container">
+        {% if messages %}
+        <div class="messages-container" style="margin-top: 20px;">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}"
+                style="padding: 15px; border-radius: 12px; margin-bottom: 10px; background: #FFFBEB; color: #92400e; border: 1px solid #FEF3C7; font-weight: 600;">
+                <i class="fas fa-info-circle" style="margin-right: 8px; color: var(--primary-yellow);"></i> {{ message
+                }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <!-- Simple footer -->
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" onclick="closeLoginModal()">×</button>
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h2 class="modal-title">Xush kelibsiz!</h2>
+                <p class="modal-subtitle">Davom etish uchun Google orqali kiring</p>
+            </div>
+
+            {% load socialaccount %}
+            <a href="{% provider_login_url 'google' %}" class="btn-google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <span>Google orqali kirish</span>
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- Favorites Sidebar -->
+    <div id="favoritesSidebar" class="sidebar">
+        <div class="sidebar-header" style="background: var(--primary-yellow); color: #fff; border: none;">
+            <h3 class="sidebar-title" style="color: #fff;">Saralanganlar</h3>
+            <button class="sidebar-close" onclick="closeFavoritesSidebar()" style="color: #fff;">×</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="far fa-heart"></i>
+                </div>
+                <h3 class="empty-title">Saralanganlar bo'sh</h3>
+                <p class="empty-text">Yoqtirgan mahsulotlaringizni saqlang</p>
+                <button class="btn-secondary" onclick="closeFavoritesSidebar()">Xaridni davom ettirish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="sidebar">
+        <div class="sidebar-header" style="background: var(--primary-yellow); color: #fff; border: none;">
+            <h3 class="sidebar-title" style="color: #fff;">Savat</h3>
+            <button class="sidebar-close" onclick="closeCartSidebar()" style="color: #fff;">×</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3 class="empty-title">Savat bo'sh</h3>
+                <p class="empty-text">Mahsulotlarni qo'shishni boshlang</p>
+                <button class="btn-secondary" onclick="closeCartSidebar()">Xaridni davom ettirish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login Modal
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+
+        // Favorites Sidebar
+        function openFavoritesSidebar() {
+            document.getElementById('favoritesSidebar').classList.add('active');
+            updateFavoritesSidebar();
+            localStorage.setItem('favoriteSidebarOpen', 'true');
+        }
+
+        async function updateFavoritesSidebar() {
+            const sidebarContent = document.querySelector('#favoritesSidebar .sidebar-content');
+            try {
+                const response = await fetch('/favorites/get/');
+                const data = await response.json();
+
+                if (data.items.length === 0) {
+                    sidebarContent.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="far fa-heart"></i></div>
+                            <h3 class="empty-title">Saralanganlar bo'sh</h3>
+                            <p class="empty-text">Yoqtirgan mahsulotlaringizni saqlang</p>
+                            <button class="btn-secondary" onclick="closeFavoritesSidebar()">Xaridni davom ettirish</button>
+                        </div>`;
+                    return;
+                }
+
+                let html = '<div class="sidebar-items">';
+                data.items.forEach(item => {
+                    html += `
+                        <div class="sidebar-item">
+                            <img src="${item.image_url}" alt="${item.name}" class="item-img">
+                            <div class="item-info">
+                                <h4 class="item-name">${item.name}</h4>
+                                <p class="item-price">${item.price} so'm</p>
+                            </div>
+                            <button class="remove-btn" onclick="toggleFavorite(null, '${item.id}', true)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>`;
+                });
+                html += '</div>';
+                sidebarContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching favorites:', error);
+            }
+        }
+
+        async function toggleFavorite(btn, productId, fromSidebar = false) {
+            try {
+                const response = await fetch(`/favorite/toggle/${productId}/`);
+                const data = await response.json();
+
+                // Refresh sidebar automatically
+                updateFavoritesSidebar();
+
+                if (btn) {
+                    btn.classList.toggle('active', data.is_favorite);
+                    const icon = btn.querySelector('i');
+                    icon.className = data.is_favorite ? 'fas fa-heart' : 'far fa-heart';
+                }
+
+                if (fromSidebar) {
+                    // Sync icon on the main page
+                    const mainBtn = document.querySelector(`.wishlist-btn[onclick*="'${productId}'"]`);
+                    if (mainBtn) {
+                        mainBtn.classList.toggle('active', data.is_favorite);
+                        mainBtn.querySelector('i').className = data.is_favorite ? 'fas fa-heart' : 'far fa-heart';
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+            }
+        }
+        function closeFavoritesSidebar() {
+            document.getElementById('favoritesSidebar').classList.remove('active');
+            localStorage.setItem('favoriteSidebarOpen', 'false');
+        }
+
+        // Cart Sidebar
+        function openCartSidebar() {
+            document.getElementById('cartSidebar').classList.add('active');
+            document.getElementById('loginModal').classList.remove('active');
+            updateCartSidebar();
+            localStorage.setItem('cartSidebarOpen', 'true');
+        }
+
+        async function updateCartSidebar() {
+            const sidebarContent = document.querySelector('#cartSidebar .sidebar-content');
+            try {
+                const response = await fetch('/api/cart/get/');
+                const data = await response.json();
+
+                if (data.items.length === 0) {
+                    sidebarContent.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-shopping-cart"></i></div>
+                            <h3 class="empty-title">Savat bo'sh</h3>
+                            <p class="empty-text">Mahsulotlarni qo'shishni boshlang</p>
+                            <button class="btn-secondary" onclick="closeCartSidebar()">Xaridni davom ettirish</button>
+                        </div>`;
+                    return;
+                }
+
+                let html = '<div class="sidebar-items">';
+                data.items.forEach(item => {
+                    html += `
+                        <div class="sidebar-item">
+                            <img src="${item.image_url}" alt="${item.name}" class="item-img">
+                            <div class="item-info">
+                                <h4 class="item-name">${item.name}</h4>
+                                <p class="item-price">${item.quantity} x ${item.price} so'm</p>
+                            </div>
+                        </div>`;
+                });
+                html += `</div>
+                    <div style="padding: 20px; border-top: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <span style="color: var(--text-muted);">Jami:</span>
+                            <span style="font-weight: 700; color: var(--primary-yellow);">${data.total_price} so'm</span>
+                        </div>
+                        <a href="/cart/" onclick="closeCartSidebar()" class="btn-yellow-main" style="display: block; text-align: center; text-decoration: none; background: white; color: black; font-weight: 800;">Savatga o'tish</a>
+                    </div>`;
+                sidebarContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching cart:', error);
+            }
+        }
+
+        function showToast(message, color = 'var(--primary-yellow)') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = color;
+            toast.innerHTML = `<i class="fas fa-check-circle" style="color: ${color}"></i> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch(`/api/cart/add/${productId}/?t=` + Date.now());
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    showToast("Savatga muvaffaqiyatli qo'shildi");
+                    updateCartBadge();
+                    updateCartSidebar(); // Add this line
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                showToast("Xatolik yuz berdi", "#ef4444");
+            }
+        }
+
+        async function updateCartBadge() {
+            try {
+                const response = await fetch('/api/cart/get/?t=' + Date.now());
+                const data = await response.json();
+                const badges = document.querySelectorAll('.cart-badge');
+                badges.forEach(b => {
+                    b.innerText = data.count;
+                    b.style.display = data.count > 0 ? 'flex' : 'none';
+                });
+            } catch (e) { }
+        }
+
+        // Initialize badges
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
+
+        function closeCartSidebar() {
+            document.getElementById('cartSidebar').classList.remove('active');
+            localStorage.setItem('cartSidebarOpen', 'false');
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay, .sidebar').forEach(el => {
+                    el.classList.remove('active');
+                    // We might need to handle specific sidebars here if esc closes them
+                    // For now, let's keep it simple as specific close buttons are used
+                });
+                // If sidebar is closed via ESC, update storage
+                if (!document.getElementById('cartSidebar').classList.contains('active')) localStorage.setItem('cartSidebarOpen', 'false');
+                if (!document.getElementById('profileSidebar').classList.contains('active')) localStorage.setItem('profileSidebarOpen', 'false');
+                if (!document.getElementById('favoritesSidebar').classList.contains('active')) localStorage.setItem('favoriteSidebarOpen', 'false');
+            }
+        });
+        // Profile Sidebar Logic
+        function openProfileSidebar() {
+            document.getElementById('profileSidebar').classList.add('active');
+            updateProfileData();
+            localStorage.setItem('profileSidebarOpen', 'true');
+        }
+
+        function closeProfileSidebar() {
+            document.getElementById('profileSidebar').classList.remove('active');
+            localStorage.setItem('profileSidebarOpen', 'false');
+        }
+
+        // Initialize Sidebars from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('cartSidebarOpen') === 'true') openCartSidebar();
+            if (localStorage.getItem('profileSidebarOpen') === 'true') openProfileSidebar();
+            if (localStorage.getItem('favoriteSidebarOpen') === 'true') openFavoritesSidebar();
+        });
+
+        async function updateProfileData() {
+            try {
+                const response = await fetch('/api/profile/get/');
+                const data = await response.json();
+
+                document.getElementById('prof-name').innerText = data.first_name || 'Kiritilmagan';
+                document.getElementById('prof-phone').innerText = '+998 ' + (data.phone_number || '');
+                document.getElementById('prof-address').innerText = data.address || 'Kiritilmagan';
+                document.getElementById('order-count').innerText = data.orders.length + ' ta';
+
+                const list = document.getElementById('profile-orders-list');
+                if (data.orders.length === 0) {
+                    list.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; padding: 10px;">Hozircha buyurtmalar yo\'q.</p>';
+                    return;
+                }
+
+                let html = '';
+                data.orders.forEach(order => {
+                    html += `
+                        <div class="profile-order-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="font-size: 11px; color: var(--text-main); font-weight: 700;">ID: #${order.id}</div>
+                                <div class="order-status">${order.status.toUpperCase()}</div>
+                            </div>
+                            <div class="order-meta">
+                                <span style="font-size: 11px; color: var(--text-muted);">${order.created_at}</span>
+                                <span style="color: var(--text-main);">${order.total_amount.toLocaleString()} so'm</span>
+                            </div>
+                            ${order.items.map(item => `
+                                <div class="order-product">
+                                    <img src="${item.image_url}" alt="${item.product_name}">
+                                    <div>
+                                        <div style="color: var(--text-main); font-size: 12px; font-weight: 600;">${item.product_name}</div>
+                                        <div style="color: var(--text-muted); font-size: 11px;">${item.quantity} x ${item.price.toLocaleString()} so'm</div>
+                                        <div class="order-stars">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <div class="sharh-input-group">
+                                <input type="text" class="sharh-input" id="note-${order.id}" placeholder="Izoh qoldiring..." value="${order.user_note}">
+                                <button class="btn-ok" onclick="saveOrderNote(${order.id})">OK</button>
+                            </div>
+                        </div>`;
+                });
+                list.innerHTML = html;
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        }
+
+        let isProfileEditing = false;
+        function toggleProfileEdit() {
+            isProfileEditing = !isProfileEditing;
+            const values = document.querySelectorAll('.info-value');
+            const inputs = document.querySelectorAll('.edit-input');
+            const editBtn = document.getElementById('edit-profile-btn');
+            const saveBtn = document.getElementById('save-profile-btn');
+
+            if (isProfileEditing) {
+                values.forEach(v => v.style.display = 'none');
+                inputs.forEach(i => i.style.display = 'block');
+
+                document.getElementById('edit-name').value = document.getElementById('prof-name').innerText;
+                document.getElementById('edit-phone').value = document.getElementById('prof-phone').innerText.replace('+998 ', '');
+                document.getElementById('edit-address').value = document.getElementById('prof-address').innerText;
+
+                editBtn.innerHTML = '<i class="fas fa-times"></i> Bekor qilish';
+                saveBtn.style.display = 'block';
+            } else {
+                values.forEach(v => v.style.display = 'block');
+                inputs.forEach(i => i.style.display = 'none');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> Tahrirlash';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        async function saveProfileChanges() {
+            const name = document.getElementById('edit-name').value;
+            const phone = document.getElementById('edit-phone').value;
+            const address = document.getElementById('edit-address').value;
+            const btn = document.getElementById('save-profile-btn');
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('first_name', name);
+                formData.append('phone_number', phone);
+                formData.append('address', address);
+
+                const response = await fetch('/api/profile/update/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    await updateProfileData();
+                    isProfileEditing = true; // force toggle back
+                    toggleProfileEdit();
+                }
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                btn.innerHTML = 'Xato!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-save"></i> Saqlash';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        async function saveOrderNote(orderId) {
+            const noteInput = document.getElementById(`note-${orderId}`);
+            const note = noteInput.value;
+            const btn = noteInput.nextElementSibling;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('note', note);
+
+                const response = await fetch(`/api/order/note/${orderId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.style.background = '#22c55e';
+                    setTimeout(() => {
+                        btn.innerHTML = 'OK';
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error saving note:', error);
+                btn.innerHTML = 'X';
+                btn.style.background = '#ef4444';
+                setTimeout(() => {
+                    btn.innerHTML = 'OK';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+    </script>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="{% url 'market:home' %}"
+            class="bottom-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Asosiy</span>
+        </a>
+
+        <div class="bottom-nav-item" onclick="openFavoritesSidebar()">
+            <i class="far fa-heart"></i>
+            <span>Saralangan</span>
+        </div>
+
+        <div class="bottom-nav-item" onclick="openCartSidebar()">
+            <div style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge" style="display: none;">0</span>
+            </div>
+            <span>Savat</span>
+        </div>
+
+        <div class="bottom-nav-item" onclick="openSupportModal()">
+            <i class="fas fa-headset"></i>
+            <span>Yordam</span>
+        </div>
+
+        {% comment %}
+        {% if user.is_staff %}
+        <a href="{% url 'market:admin_dashboard' %}"
+            class="bottom-nav-item {% if 'admin' in request.path %}active{% endif %}">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+        </a>
+        {% endif %}
+        {% endcomment %}
+
+        {% if user.is_authenticated %}
+        <div class="bottom-nav-item" onclick="openProfileSidebar()">
+            <i class="far fa-user"></i>
+            <span>Profil</span>
+        </div>
+        {% else %}
+        <div class="bottom-nav-item" onclick="openLoginModal()">
+            <i class="far fa-user"></i>
+            <span>Kirish</span>
+        </div>
+        {% endif %}
+    </div>
+    <!-- Support Modal -->
+    <div id="supportModal" class="modal-overlay">
+        <div class="modal-container" style="text-align: center;">
+            <button class="modal-close" onclick="closeSupportModal()">×</button>
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h2 class="modal-title">Yordam kerakmi?</h2>
+                <p class="modal-subtitle">Bizning operatorlarimiz sutkaning istalgan vaqtida sizga yordam berishga
+                    tayyor.</p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px 25px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer;"
+                onmouseover="this.style.borderColor='var(--primary-yellow)'"
+                onmouseout="this.style.borderColor='#e2e8f0'">
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 10px; font-weight: 500;">Qo'ng'iroq qiling:
+                </p>
+                <a href="tel:+998880374444"
+                    style="display: block; font-size: 22px; font-weight: 900; color: #1e293b; text-decoration: none; letter-spacing: -0.5px;">+998
+                    88 037 4444</a>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px 25px; border-radius: 20px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer;"
+                onmouseover="this.style.borderColor='#E1306C'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 8px; font-weight: 500;">Instagram orqali
+                    murojaat:</p>
+                <a href="https://instagram.com/nextmarket.uz" target="_blank"
+                    style="font-size: 20px; font-weight: 800; color: #E1306C; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <i class="fab fa-instagram" style="font-size: 24px;"></i> @nextmarket.uz
+                </a>
+            </div>
+
+            <button onclick="closeSupportModal()"
+                style="margin-top: 30px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: underline;">Yopish</button>
+        </div>
+    </div>
+
+    <script>
+        function openSupportModal() {
+            document.getElementById('supportModal').classList.add('active');
+        }
+
+        function closeSupportModal() {
+            document.getElementById('supportModal').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>

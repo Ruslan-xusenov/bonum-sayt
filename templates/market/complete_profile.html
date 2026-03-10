@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .modal-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .custom-modal {
+        background: #1a1a1a;
+        width: 100%;
+        max-width: 440px;
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        border: 1px solid #333;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: #666;
+        font-size: 20px;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+
+    .modal-title {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 25px;
+        text-align: left;
+    }
+
+    .form-label {
+        color: #999;
+        font-size: 13px;
+        display: block;
+        margin-bottom: 8px;
+        text-align: left;
+    }
+
+    .input-wrapper {
+        margin-bottom: 20px;
+    }
+
+    .custom-input {
+        width: 100%;
+        background: #2a2a2a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 14px 15px;
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .custom-input:focus {
+        border-color: var(--primary-yellow);
+    }
+
+    /* Phone Input Group */
+    .phone-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .country-selector {
+        background: #2a2a2a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        font-size: 14px;
+        cursor: default;
+        white-space: nowrap;
+    }
+
+    .country-selector img {
+        width: 18px;
+        border-radius: 2px;
+    }
+
+    /* Address Group */
+    .address-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .icon-btn {
+        background: #2a2a2a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        width: 45px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-yellow);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+
+    .icon-btn:hover {
+        background: #333;
+    }
+
+    .submit-btn-yellow {
+        width: 100%;
+        background: var(--primary-yellow);
+        color: #000;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: transform 0.2s;
+    }
+
+    .submit-btn-yellow:hover {
+        transform: scale(1.02);
+        background: var(--hover-yellow);
+    }
+
+    /* Placeholder color */
+    ::placeholder {
+        color: #555;
+    }
+</style>
+
+<div class="modal-background">
+    <div class="custom-modal">
+        <button class="modal-close-btn">&times;</button>
+        <h2 class="modal-title">Ro'yxatdan o'tish</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="input-wrapper">
+                <label class="form-label">Ismingiz *</label>
+                <input type="text" name="first_name" class="custom-input" placeholder="Ismingiz" required
+                    value="{{ user.first_name }}">
+                <input type="hidden" name="last_name" value="User"> <!-- Hidden or simplified -->
+            </div>
+
+            <div class="input-wrapper">
+                <label class="form-label">Telefon raqamingiz *</label>
+                <div class="phone-group">
+                    <div class="country-selector">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg" alt="UZ">
+                        <span>uz +998</span>
+                    </div>
+                    <input type="tel" name="phone" class="custom-input" placeholder="90 123 45 67" required
+                        value="{{ user.profile.phone_number|default:'' }}">
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label class="form-label">Manzilingiz / Lakatsiya *</label>
+                <div class="address-group">
+                    <input type="text" name="address" class="custom-input" placeholder="Manzilingiz / Lakatsiya"
+                        required value="{{ user.profile.address|default:'' }}">
+                    <button type="button" class="icon-btn" title="Hozirgi joylashuv">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                    <button type="button" class="icon-btn" title="Xaritadan tanlash">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn-yellow">Kirish</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
