@@ -37,9 +37,10 @@ class Migration(migrations.Migration):
             name='phone_number',
             field=models.CharField(blank=True, max_length=20, null=True, validators=[django.core.validators.RegexValidator(message="Telefon raqami '+998901234567' formatida bo'lishi kerak.", regex='^\\+?1?\\d{9,15}$')]),
         ),
+        migrations.RunSQL('CREATE EXTENSION IF NOT EXISTS pg_trgm;'),
         migrations.AddIndex(
             model_name='product',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['name'], name='product_name_gin'),
+            index=django.contrib.postgres.indexes.GinIndex(fields=['name'], name='product_name_gin', opclasses=['gin_trgm_ops']),
         ),
         migrations.AddIndex(
             model_name='product',

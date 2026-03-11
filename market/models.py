@@ -44,7 +44,7 @@ class Product(models.Model):
     class Meta:
         indexes = [
             # Note: GIN index requires PostgreSQL. Won't affect SQLite dev env.
-            GinIndex(fields=['name'], name='product_name_gin') if GinIndex else models.Index(fields=['name']),
+            GinIndex(fields=['name'], name='product_name_gin', opclasses=['gin_trgm_ops']) if GinIndex else models.Index(fields=['name']),
             models.Index(fields=['brand'], name='product_brand_idx'),
         ]
 
