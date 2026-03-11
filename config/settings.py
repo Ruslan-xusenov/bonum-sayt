@@ -306,7 +306,10 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     
     # Trusted Origins (Add your domain here when deploying)
-    CSRF_TRUSTED_ORIGINS = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+    CSRF_TRUSTED_ORIGINS = os.environ.get(
+        'DJANGO_CSRF_TRUSTED_ORIGINS', 
+        'https://nextmarket.ruslandev.uz,https://91.99.1.216'
+    ).split(',')
     # Telegram Bot Settings
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7946489770:AAGVOvBVFRrq1BoMKPZLssBn5QnKkGmvLYo')
 TELEGRAM_CHAT_IDS = os.environ.get('TELEGRAM_CHAT_IDS', '108359845,5520140856,7501693977,8462446411,1341191471').split(',')
