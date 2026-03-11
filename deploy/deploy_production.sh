@@ -10,7 +10,17 @@ set -e
 PROJECT_NAME="nextmarket"
 DOMAIN="nextmarket.ruslandev.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
-PROJECT_DIR="/home/$(whoami)/$PROJECT_NAME"
+
+# Detect project directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PARENT_DIR="$(dirname "$SCRIPT_DIR")"
+
+if [ -d "$PARENT_DIR/.git" ]; then
+    PROJECT_DIR="$PARENT_DIR"
+else
+    PROJECT_DIR="/var/www/$PROJECT_NAME"
+fi
+
 VENV_DIR="$PROJECT_DIR/venv"
 USER=$(whoami)
 GROUP="www-data"
@@ -81,12 +91,15 @@ else
 fi
 
 echo ""
-echo "4. Cloning repository and creating directories..."
+echo "4. Setting up project directory..."
 if [ ! -d "$PROJECT_DIR" ]; then
     git clone $GITHUB_REPO $PROJECT_DIR
     print_status "Repository cloned"
 else
-    print_warning "Directory $PROJECT_DIR already exists. Skipping clone."
+    print_warning "Directory $PROJECT_DIR already exists. Updating code..."
+    cd $PROJECT_DIR
+    git pull origin main
+    print_status "Code updated"
 fi
 
 mkdir -p $PROJECT_DIR/logs
