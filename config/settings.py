@@ -20,6 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fb1f+c9wxq-ldf0vy6sym+dw0v+t5naxxgpeeco#d^a7)-@5wz')
