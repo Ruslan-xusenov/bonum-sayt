@@ -240,20 +240,21 @@ def admin_dashboard(request):
 def admin_add_banner(request):
     if request.method == 'POST':
         title = request.POST.get('title')
-        subtitle = request.POST.get('subtitle')
-        link = request.POST.get('link', '#')
+        subtitle = request.POST.get('subtitle') or request.POST.get('description', '')
+        link = request.POST.get('link') or request.POST.get('button_text') or '#'
         order = request.POST.get('order', 0)
         
-        banner = Banner.objects.create(
-            title=title,
-            subtitle=subtitle,
-            link=link,
-            order=order,
-        )
+        banner_data = {
+            'title': title,
+            'subtitle': subtitle,
+            'link': link,
+            'order': order,
+        }
         
         if request.FILES.get('image'):
-            banner.image = request.FILES['image']
-            banner.save()
+            banner_data['image'] = request.FILES['image']
+            
+        Banner.objects.create(**banner_data)
         
         return redirect('market:admin_dashboard')
     
@@ -265,8 +266,8 @@ def admin_edit_banner(request, pk):
     
     if request.method == 'POST':
         banner.title = request.POST.get('title')
-        banner.subtitle = request.POST.get('subtitle')
-        banner.link = request.POST.get('link')
+        banner.subtitle = request.POST.get('subtitle') or request.POST.get('description', banner.subtitle)
+        banner.link = request.POST.get('link') or request.POST.get('button_text') or banner.link
         banner.order = request.POST.get('order', 0)
         banner.is_active = request.POST.get('is_active') == 'on'
         
