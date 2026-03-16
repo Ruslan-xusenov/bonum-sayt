@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # --- Configuration ---
-PROJECT_NAME="nextmarket"
-DOMAIN="nextmarket.ruslandev.uz"
+PROJECT_NAME="bonum"
+DOMAIN="bonumm.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
 USER_NAME=$(whoami)
-PROJECT_DIR="/home/$USER_NAME/$PROJECT_NAME"
+PROJECT_DIR="/var/www/$PROJECT_NAME"
 VENV_PATH="$PROJECT_DIR/venv"
 
 # Colors for output
@@ -14,7 +14,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}NextMarket Deployment Script${NC}"
+echo -e "${YELLOW}Bonum Deployment Script${NC}"
 echo "---------------------------"
 
 show_menu() {
@@ -30,8 +30,8 @@ initial_setup() {
 
     echo -e "${GREEN}[2/8] Setting up PostgreSQL...${NC}"
     # Create DB and User if they don't exist
-    DB_NAME="nextmarket_db"
-    DB_USER="nextmarket_user"
+    DB_NAME="bonum_db"
+    DB_USER="bonum_user"
     DB_PASS=$(openssl rand -base64 12)
     
     sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
@@ -43,7 +43,9 @@ initial_setup() {
 
     echo -e "${GREEN}[3/8] Cloning Repository...${NC}"
     if [ ! -d "$PROJECT_DIR" ]; then
-        git clone $GITHUB_REPO $PROJECT_DIR
+        sudo mkdir -p /var/www
+        sudo git clone $GITHUB_REPO $PROJECT_DIR
+        sudo chown -R $USER_NAME:www-data $PROJECT_DIR
     else
         echo "Directory $PROJECT_DIR already exists. Skipping clone."
     fi
@@ -64,7 +66,7 @@ DJANGO_ALLOWED_HOSTS=$DOMAIN,91.99.1.216
 DATABASE_URL=postgres://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME
 REDIS_URL=redis://127.0.0.1:6379/1
 CORS_ALLOWED_ORIGINS=https://$DOMAIN
-DJANGO_CSRF_TRUSTED_ORIGINS=https://$DOMAIN
+DJANGO_CSRF_TRUSTED_ORIGINS=https://$DOMAIN,https://91.99.1.216
 EOF
     echo "Done. Please update .env with Cloudinary and Telegram credentials manually."
 
@@ -73,7 +75,7 @@ EOF
     python3 manage.py collectstatic --noinput
 
     echo -e "${GREEN}[7/8] Configuring Systemd (Daphne)...${NC}"
-    cat <<EOF | sudo tee /etc/systemd/system/daphne.service
+    cat <<EOF | sudo tee /etc/systemd/system/daphne-$PROJECT_NAME.service
 [Unit]
 Description=Daphne service for $PROJECT_NAME
 After=network.target
@@ -82,7 +84,7 @@ After=network.target
 User=$USER_NAME
 Group=www-data
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/daphne.sock config.asgi:application
+ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/bonum.sock config.asgi:application
 Restart=always
 
 [Install]
@@ -90,11 +92,11 @@ WantedBy=multi-user.target
 EOF
 
     sudo systemctl daemon-reload
-    sudo systemctl start daphne
-    sudo systemctl enable daphne
+    sudo systemctl start daphne-$PROJECT_NAME
+    sudo systemctl enable daphne-$PROJECT_NAME
 
     echo -e "${GREEN}[8/8] Configuring Nginx...${NC}"
-    cat <<EOF | sudo tee /etc/nginx/sites-available/$PROJECT_NAME
+    cat <<EOF | sudo tee /etc/nginx/sites-available/$PROJECT_NAME.conf
 server {
     listen 80;
     server_name $DOMAIN 91.99.1.216;
@@ -110,7 +112,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 
     location /ws/ {
@@ -118,12 +120,12 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_redirect off;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 }
 EOF
 
-    sudo ln -s /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/
+    sudo ln -s /etc/nginx/sites-available/$PROJECT_NAME.conf /etc/nginx/sites-enabled/
     sudo nginx -t && sudo systemctl restart nginx
 
     echo -e "${YELLOW}Setup Complete! Site should be live at http://$DOMAIN${NC}"
@@ -138,7 +140,7 @@ update_project() {
     pip install -r requirements.txt
     python3 manage.py migrate
     python3 manage.py collectstatic --noinput
-    sudo systemctl restart daphne
+    sudo systemctl restart daphne-$PROJECT_NAME
     sudo systemctl restart nginx
     echo -e "${GREEN}Update Complete!${NC}"
 }

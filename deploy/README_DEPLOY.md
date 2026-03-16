@@ -1,11 +1,10 @@
-# Deploying NextMarket
+# Deploying Bonum
 
 This project is configured for deployment using **Daphne** (ASGI), **Nginx**, **PostgreSQL**, and **Redis**.
 
 ## Files created:
 - `deploy/deploy.sh`: Main deployment and update script.
 - `deploy/nginx_template.conf`: Template for Nginx configuration.
-- `deploy/daphne_template.service`: Template for Systemd service.
 
 ## Prerequisites
 1. A Ubuntu/Debian server with root access.
@@ -17,8 +16,8 @@ This project is configured for deployment using **Daphne** (ASGI), **Nginx**, **
 ### 1. Initial Setup
 On your server, run these commands:
 ```bash
-git clone https://github.com/Ruslan-xusenov/bonum-sayt.git nextmarket
-cd nextmarket/deploy
+git clone https://github.com/Ruslan-xusenov/bonum-sayt.git bonum
+cd bonum/deploy
 chmod +x deploy.sh
 ./deploy.sh
 ```
@@ -34,7 +33,7 @@ Select **Option 1** for the first-time setup. It will:
 ### 2. Updating the Project
 Whenever you push changes to GitHub, run:
 ```bash
-cd nextmarket/deploy
+cd /var/www/bonum/deploy
 ./deploy.sh
 ```
 Select **Option 2**. It will:
@@ -48,7 +47,7 @@ Select **Option 2**. It will:
 1. **Enable SSL (HTTPS):**
    ```bash
    sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d nextmarket.ruslandev.uz
+   sudo certbot --nginx -d bonumm.uz
    ```
 2. **Update Environments:**
    Edit the `.env` file in the project root to add your Cloudinary and Telegram credentials.
@@ -58,7 +57,7 @@ Select **Option 2**. It will:
 3. **Check Logs:**
    If something is wrong, check Daphne logs:
    ```bash
-   sudo journalctl -u daphne -f
+   sudo journalctl -u daphne-bonum -f
    ```
    Or Nginx logs:
    ```bash

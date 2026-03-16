@@ -1,26 +1,16 @@
 #!/bin/bash
 
 # =========================================
-#  NextMarket Production Deployment Script
+#  Bonum Production Deployment Script
 # =========================================
 
 set -e
 
 # --- Configuration ---
-PROJECT_NAME="nextmarket"
-DOMAIN="nextmarket.ruslandev.uz"
+PROJECT_NAME="bonum"
+DOMAIN="bonumm.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
-
-# Detect project directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PARENT_DIR="$(dirname "$SCRIPT_DIR")"
-
-if [ -d "$PARENT_DIR/.git" ]; then
-    PROJECT_DIR="$PARENT_DIR"
-else
-    PROJECT_DIR="/var/www/$PROJECT_NAME"
-fi
-
+PROJECT_DIR="/var/www/$PROJECT_NAME"
 VENV_DIR="$PROJECT_DIR/venv"
 USER=$(whoami)
 GROUP="www-data"
@@ -69,8 +59,8 @@ print_status "Packages installed"
 echo ""
 echo "3. Setting up PostgreSQL..."
 # Variables for DB
-DB_NAME="nextmarket_db"
-DB_USER="nextmarket_user"
+DB_NAME="bonum_db"
+DB_USER="bonum_user"
 DB_PASS=$(openssl rand -base64 12)
 
 # Check if DB exists
@@ -93,7 +83,9 @@ fi
 echo ""
 echo "4. Setting up project directory..."
 if [ ! -d "$PROJECT_DIR" ]; then
-    git clone $GITHUB_REPO $PROJECT_DIR
+    sudo mkdir -p /var/www
+    sudo git clone $GITHUB_REPO $PROJECT_DIR
+    sudo chown -R $USER:$GROUP $PROJECT_DIR
     print_status "Repository cloned"
 else
     print_warning "Directory $PROJECT_DIR already exists. Updating code..."
@@ -129,11 +121,11 @@ DJANGO_ALLOWED_HOSTS=$DOMAIN,91.99.1.216
 DATABASE_URL=postgres://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME
 REDIS_URL=redis://127.0.0.1:6379/1
 CORS_ALLOWED_ORIGINS=https://$DOMAIN
-DJANGO_CSRF_TRUSTED_ORIGINS=https://$DOMAIN
+DJANGO_CSRF_TRUSTED_ORIGINS=https://$DOMAIN,https://91.99.1.216
 # Add your Cloudinary and Telegram tokens here
 # CLOUDINARY_CLOUD_NAME=...
 EOF
-    print_status ".env file created (Please update it later with Cloudinary/Telegram keys)"
+    print_status ".env file created"
 else
     print_warning ".env file already exists. Skipping creation."
 fi
@@ -152,7 +144,7 @@ print_status "Permissions set"
 
 echo ""
 echo "8. Setting up Systemd service (Daphne)..."
-cat <<EOF | sudo tee /etc/systemd/system/daphne.service
+cat <<EOF | sudo tee /etc/systemd/system/daphne-$PROJECT_NAME.service
 [Unit]
 Description=Daphne service for $PROJECT_NAME
 After=network.target
@@ -161,7 +153,7 @@ After=network.target
 User=$USER
 Group=$GROUP
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/daphne.sock config.asgi:application
+ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/bonum.sock config.asgi:application
 Restart=always
 
 [Install]
@@ -169,13 +161,13 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable daphne
-sudo systemctl restart daphne
-print_status "Daphne systemd service configured"
+sudo systemctl enable daphne-$PROJECT_NAME
+sudo systemctl restart daphne-$PROJECT_NAME
+print_status "Daphne systemd service (daphne-$PROJECT_NAME) configured"
 
 echo ""
 echo "9. Setting up Nginx..."
-cat <<EOF | sudo tee /etc/nginx/sites-available/$PROJECT_NAME
+cat <<EOF | sudo tee /etc/nginx/sites-available/$PROJECT_NAME.conf
 server {
     listen 80;
     server_name $DOMAIN 91.99.1.216;
@@ -192,7 +184,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 
     location /ws/ {
@@ -200,13 +192,13 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_redirect off;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 }
 EOF
 
-sudo ln -sf /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -sf /etc/nginx/sites-available/$PROJECT_NAME.conf /etc/nginx/sites-enabled/
+# sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl restart nginx
 sudo systemctl enable nginx
