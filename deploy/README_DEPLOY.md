@@ -1,4 +1,4 @@
-# Deploying Bonum
+# Deploying Bonum-Sayt
 
 This project is configured for deployment using **Daphne** (ASGI), **Nginx**, **PostgreSQL**, and **Redis**.
 
@@ -16,8 +16,8 @@ This project is configured for deployment using **Daphne** (ASGI), **Nginx**, **
 ### 1. Initial Setup
 On your server, run these commands:
 ```bash
-git clone https://github.com/Ruslan-xusenov/bonum-sayt.git bonum
-cd bonum/deploy
+git clone https://github.com/Ruslan-xusenov/bonum-sayt.git bonum-sayt
+cd bonum-sayt/deploy
 chmod +x deploy.sh
 ./deploy.sh
 ```
@@ -33,7 +33,7 @@ Select **Option 1** for the first-time setup. It will:
 ### 2. Updating the Project
 Whenever you push changes to GitHub, run:
 ```bash
-cd /var/www/bonum/deploy
+cd /var/www/bonum-sayt/deploy
 ./deploy.sh
 ```
 Select **Option 2**. It will:
@@ -57,7 +57,7 @@ Select **Option 2**. It will:
 3. **Check Logs:**
    If something is wrong, check Daphne logs:
    ```bash
-   sudo journalctl -u daphne-bonum -f
+   sudo journalctl -u daphne-bonum-sayt -f
    ```
    Or Nginx logs:
    ```bash

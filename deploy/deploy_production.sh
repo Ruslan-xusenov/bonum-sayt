@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # =========================================
-#  Bonum Production Deployment Script
+#  Bonum-Sayt Production Deployment Script
 # =========================================
 
 set -e
 
 # --- Configuration ---
-PROJECT_NAME="bonum"
+PROJECT_NAME="bonum-sayt"
 DOMAIN="bonumm.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
 PROJECT_DIR="/var/www/$PROJECT_NAME"
@@ -59,8 +59,8 @@ print_status "Packages installed"
 echo ""
 echo "3. Setting up PostgreSQL..."
 # Variables for DB
-DB_NAME="bonum_db"
-DB_USER="bonum_user"
+DB_NAME="bonum_sayt_db"
+DB_USER="bonum_sayt_user"
 DB_PASS=$(openssl rand -base64 12)
 
 # Check if DB exists
@@ -153,7 +153,7 @@ After=network.target
 User=$USER
 Group=$GROUP
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/bonum.sock config.asgi:application
+ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/daphne.sock config.asgi:application
 Restart=always
 
 [Install]
@@ -184,7 +184,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
+        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
     }
 
     location /ws/ {
@@ -192,7 +192,7 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_redirect off;
-        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
+        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
     }
 }
 EOF
