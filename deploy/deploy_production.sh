@@ -7,8 +7,8 @@
 set -e
 
 # --- Configuration ---
-PROJECT_NAME="bonum-sayt"
-DOMAIN="bonumm.uz"
+PROJECT_NAME="bonum"
+DOMAIN="nextmarket.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
 PROJECT_DIR="/var/www/$PROJECT_NAME"
 VENV_DIR="$PROJECT_DIR/venv"
@@ -153,7 +153,7 @@ After=network.target
 User=$USER
 Group=$GROUP
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/daphne.sock config.asgi:application
+ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/bonum.sock config.asgi:application
 Restart=always
 
 [Install]
@@ -184,7 +184,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 
     location /ws/ {
@@ -192,7 +192,7 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_redirect off;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 }
 EOF

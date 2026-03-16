@@ -329,7 +329,7 @@ if not DEBUG:
     # Trusted Origins (Add your domain here when deploying)
     CSRF_TRUSTED_ORIGINS = os.environ.get(
         'DJANGO_CSRF_TRUSTED_ORIGINS', 
-        'https://bonumm.uz,https://91.99.1.216,https://nextmarket.ruslandev.uz'
+        'https://nextmarket.uz,https://91.99.1.216,https://nextmarket.ruslandev.uz'
     ).split(',')
     # Telegram Bot Settings
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7946489770:AAGVOvBVFRrq1BoMKPZLssBn5QnKkGmvLYo')

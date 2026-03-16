@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # --- Configuration ---
-PROJECT_NAME="bonum-sayt"
-DOMAIN="bonumm.uz"
+PROJECT_NAME="bonum"
+DOMAIN="nextmarket.uz"
 GITHUB_REPO="https://github.com/Ruslan-xusenov/bonum-sayt.git"
 USER_NAME=$(whoami)
 PROJECT_DIR="/var/www/$PROJECT_NAME"
@@ -14,7 +14,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Bonum-Sayt Deployment Script${NC}"
+echo -e "${YELLOW}Bonum Deployment Script${NC}"
 echo "---------------------------"
 
 show_menu() {
@@ -30,8 +30,8 @@ initial_setup() {
 
     echo -e "${GREEN}[2/8] Setting up PostgreSQL...${NC}"
     # Create DB and User if they don't exist
-    DB_NAME="bonum_sayt_db"
-    DB_USER="bonum_sayt_user"
+    DB_NAME="bonum_db"
+    DB_USER="bonum_user"
     DB_PASS=$(openssl rand -base64 12)
     
     sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
@@ -84,7 +84,7 @@ After=network.target
 User=$USER_NAME
 Group=www-data
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/daphne.sock config.asgi:application
+ExecStart=$PROJECT_DIR/venv/bin/daphne -u $PROJECT_DIR/bonum.sock config.asgi:application
 Restart=always
 
 [Install]
@@ -112,7 +112,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 
     location /ws/ {
@@ -120,12 +120,12 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_redirect off;
-        proxy_pass http://unix:$PROJECT_DIR/daphne.sock;
+        proxy_pass http://unix:$PROJECT_DIR/bonum.sock;
     }
 }
 EOF
 
-    sudo ln -s /etc/nginx/sites-available/$PROJECT_NAME.conf /etc/nginx/sites-enabled/
+    sudo ln -sf /etc/nginx/sites-available/$PROJECT_NAME.conf /etc/nginx/sites-enabled/
     sudo nginx -t && sudo systemctl restart nginx
 
     echo -e "${YELLOW}Setup Complete! Site should be live at http://$DOMAIN${NC}"
